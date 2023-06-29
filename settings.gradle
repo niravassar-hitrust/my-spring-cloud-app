@@ -1,0 +1,4 @@
+rootProject.name = 'my-spring-cloud-app'
+include 'PhotoAppDiscoveryService', 'PhotoAppApiUsers', 'PhotoAppApiAccountManagement'
+
+

@@ -1,0 +1,105 @@
+Spring cloud course
+==========================================
+https://www.udemy.com/course/spring-boot-microservices-and-spring-cloud/
+
+nirav_p_assar@yahoo.com/Harerama5
+
+6/24/23 - done in prep for hitrust job. 
+
+Project code I worked on is here:
+C:\Users\nirav\Documents\hitrust\spring-boot-training\mobile-app-ws
+
+https://github.com/niravassar/my-spring-cloud-app
+
+Overview
+=================================
+- will use Zuul for gateway, eureka for service discovery.
+- http request will go through gateway. and it will be a loadbalanacer also.
+- will only let zuul http requests to come in. 
+- will use spring cloud config server for properties
+- will use spring cloud bug
+
+Few Suggestions
+================================
+- do not skip videos
+- download source code - use it to find debugs and compare it.
+- this is the latest branch
+https://github.com/simplyi/SpringCloudVideoCourse/tree/update-spring-boot-v3.0.1
+- this is the repo
+https://github.com/simplyi/SpringCloudVideoCourse
+
+What is a microservice
+===================================
+-- did the spring boot
+
+Eureka Discovery service
+================================
+- it is called netflix cloud netflix eureka
+- help microservices find each other
+- microservices pop up with different port numbers, and come up and down. Eureka will keep track of this and route a request to the correct address. 
+
+	Error on startup
+	--------------------------------
+	- DiscoveryClient DISCOVERY SERVICE/host.docker.internal:discovery service:8761
+		-- added this property worked - eureka.client.fetch-registry=false
+		
+Users Microservice
+=============================
+- first one to create and will create new user with user registration functionality
+- make the projects as part of multi project gradle. 
+- register it with eureka, and then click on the link where it pops up. It will have the new port number
+	- you can directly hit it with http://localhost:62335/users/status/check
+	
+Account Management Service
+=================================
+- password reset and email verification - we are just building the microservices architectures
+- show how to run them together, and later become available in API gatewat. 
+- you can run this without Eureka, and then see the logs for the port and then go directly to that port
+	ex: http://host.docker.internal:50230/accounts/status/check
+	
+Spring Cloud API gateway
+=================================
+- it is a router and server side load balancer at the same time
+- this is a central point of entry
+- filters send requests and process stuff before and after it sends to the proxy service. 
+- enable mapping of gateway routes. automatically routes services using its application name
+- try sending a request to gateway and it will route to users
+	- send to localhost:8082 and include a service name in the url - spring.application.name=users-ws
+	- http://localhost:8082/USERS-WS/users/status/check - initially it has to be upper case
+	- to make it uppercase it needs to be config:
+		- spring.cloud.gateway.discovery.locator.lower-case-service-id=true
+- manually configure routes
+	- set routing configs with lb:// which stands for load balancer
+	- spring.cloud.gateway.routes[0] use these to config methods and filters so you can remove the users-ws 
+	- no we go through gateway and the host post never changes, while discovery finds the changing ports, and api gateway routes it.
+
+- rewriting to another path 
+	- use reg expression to change routes - spring.cloud.gateway.routes[0].filters[1]=RewritePath=/users-ws/(?<segment>.*), /$\{segment}
+	
+Spring Cloud API gateway as a load balancer
+===============================================
+- make users port 0 so it gives a random port each time and then we can use load balancer
+- you need to give instances of a service an instance name property: eureka.instance.instance-id=<pattern>
+- then we can run more than one instance at a time and we can also pass in port and name, with a specific argument pattern to send in values to the properties 
+- loadbalancers - start teh api gateway and it will alternate port numbers from the controller. the load balancer is built in
+
+In memory database
+===========================
+- introduction to the concepts
+- not able to get the project going do try to run an example that does:
+	- https://github.com/josdem/spring-boot-h2/tree/master
+	- this does connect to database without an entity;
+- mine works with the new connection and the other configuration
+	- need to have these 4 props minimal to get it to work
+spring.h2.console.enabled=true
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.platform=h2
+spring.h2.console.settings.web-allow-others=true
+
+User Signup Implementation
+==================================
+- to implement create a new user, and registration. get user, get details 
+- for validation you need to import - 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+- use generic random user id for id
+- encrypt user password with spring security
+- was able to send the user json and save it to the database and also see it in the debugger and in the h2 console. 
